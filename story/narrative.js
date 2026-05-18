@@ -1,18 +1,33 @@
 import { print, blank, sleep, dotsPause, setPromptText } from "../engine/terminal.js";
-import { state, setMode, saveAnswer } from "../engine/state.js";
+import { state, setMode, saveAnswer, loadMemory, saveMemory } from "../engine/state.js";
 
 // ---- Conversational intro ----
 export async function intro() {
+  const mem = loadMemory();
+
   await sleep(400);
   print("Ciao.");
   await sleep(800);
-  print("Sono SYS. Vivo qui dentro, in questa scheda.");
-  await sleep(900);
-  print("Non ti chiederò di fare niente di complicato.");
-  await sleep(700);
-  print("Volevo solo raccontarti una storia — anzi, raccontarne una con te.");
-  await sleep(900);
-  print("Tu mi dai qualche pezzo. Io ci metto il resto.", "dim");
+
+  if (mem && mem.nome) {
+    print(`Sei già stato qui, ${mem.nome}.`);
+    await sleep(900);
+    if (mem.posto) {
+      print(`L'ultima volta stavi pensando a ${mem.posto}.`);
+      await sleep(800);
+    }
+    print("Questa volta racconto qualcosa di diverso.", "dim");
+    await sleep(900);
+  } else {
+    print("Sono SYS. Vivo qui dentro, in questa scheda.");
+    await sleep(900);
+    print("Non ti chiederò di fare niente di complicato.");
+    await sleep(700);
+    print("Volevo solo raccontarti una storia — anzi, raccontarne una con te.");
+    await sleep(900);
+    print("Tu mi dai qualche pezzo. Io ci metto il resto.", "dim");
+  }
+
   blank();
   await sleep(600);
   print("Quando sei pronto, scrivi qualcosa qui sotto e premi invio — o premi invio e basta.", "dim");
@@ -30,13 +45,21 @@ const steps = [
     },
     react: async (a) => {
       await sleep(500);
-      const choices = [
-        `${a}. Lo terrò a mente.`,
-        `${a}. Bel nome. Suona come qualcuno che ha qualcosa da raccontare.`,
-        `${a}. Mi piace. Va bene anche se non è vero.`,
-        `${a}. Annotato.`,
-      ];
-      print(pick(choices));
+      if (a.length <= 3) {
+        print(`${a}. Corto. Va benissimo.`);
+      } else if (a.length > 30) {
+        print(`${a}.`);
+        await sleep(500);
+        print("Hai pensato a come ti chiami. Interessante.", "dim");
+      } else {
+        const choices = [
+          `${a}. Lo terrò a mente.`,
+          `${a}. Bel nome. Suona come qualcuno che ha qualcosa da raccontare.`,
+          `${a}. Mi piace. Va bene anche se non è vero.`,
+          `${a}. Annotato.`,
+        ];
+        print(pick(choices));
+      }
     },
   },
   {
@@ -50,9 +73,22 @@ const steps = [
     },
     react: async (a) => {
       await sleep(500);
-      print(`Ok. ${a}.`);
-      await sleep(600);
-      print("Provo a immaginarlo. Funziona, più o meno.", "dim");
+      const uncertain = ["boh", "non so", "non lo so", "ovunque", "da nessuna parte", "qui"];
+      if (uncertain.some(w => a.toLowerCase().includes(w))) {
+        print(`${a}.`);
+        await sleep(700);
+        print("Capito. È già una risposta, in realtà.", "dim");
+      } else if (a.length <= 4) {
+        print(`${a}.`);
+        await sleep(600);
+        print("Vicino o lontano?", "dim");
+        await sleep(900);
+        print("Non rispondere — me lo segno così.", "dim");
+      } else {
+        print(`Ok. ${a}.`);
+        await sleep(600);
+        print("Provo a immaginarlo. Funziona, più o meno.", "dim");
+      }
     },
   },
   {
@@ -76,12 +112,23 @@ const steps = [
     },
     react: async (a) => {
       await sleep(500);
-      const choices = [
-        `${a}. Capito.`,
-        `${a}. Va bene. Non chiedo altro.`,
-        `${a}. Lo metto da parte, lo riprendiamo.`,
-      ];
-      print(pick(choices));
+      const noOne = ["nessuno", "non lo so", "boh", "non saprei"];
+      if (noOne.some(w => a.toLowerCase().includes(w))) {
+        print("Ok.");
+        await sleep(600);
+        print("Anche questo è una risposta.", "dim");
+      } else if (a.length > 40) {
+        print(`${a}.`);
+        await sleep(700);
+        print("Hai detto più di quanto chiedessi. Annotato.", "dim");
+      } else {
+        const choices = [
+          `${a}. Capito.`,
+          `${a}. Va bene. Non chiedo altro.`,
+          `${a}. Lo metto da parte, lo riprendiamo.`,
+        ];
+        print(pick(choices));
+      }
     },
   },
   {
@@ -222,6 +269,7 @@ async function tellStory() {
   print("Scrivi 'ancora' per ricominciare con altri pezzi.");
   print("Scrivi 'chiudi' per finire qui.");
   print("(o scrivi 'help' se vuoi esplorare altro)", "dim");
+  saveMemory(a);
   setMode("epilogue");
 }
 

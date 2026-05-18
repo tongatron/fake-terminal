@@ -12,8 +12,8 @@ Progetto statico: HTML + CSS + JS vanilla, nessuna dipendenza.
 - [x] Aggiungere varianti alla storia finale — 3 template: narrativo, lettera, rapporto burocratico
 - [ ] Rendere le reazioni ai singoli input più sensibili al contenuto (es. riconoscere risposte corte, lunghe, emotivamente cariche)
 - [ ] Aggiungere un "capitolo 2" opzionale: dopo la prima storia, SYS può proporne una più strana
-- [ ] SYS con la memoria: alla seconda sessione ricorda nome e posto della volta precedente e li cita
-- [ ] Domande adattive: se la risposta al posto è molto corta, SYS chiede "vicino o lontano?" prima di andare avanti
+- [x] SYS con la memoria: alla seconda sessione ricorda nome e posto della volta precedente e li cita
+- [x] Domande adattive: reazioni diverse per risposte corte, lunghe, incerte o emotivamente cariche
 
 ### UX
 - [ ] Gestire meglio l'inattività: 4 livelli (15s niente / 30s cursore più veloce / 60s messaggio / 120s messaggio più lungo)

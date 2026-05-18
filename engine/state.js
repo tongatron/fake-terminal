@@ -15,3 +15,19 @@ export function setMode(m) {
 export function saveAnswer(key, value) {
   state.answers[key] = value;
 }
+
+export function loadMemory() {
+  try {
+    const raw = localStorage.getItem("sys_memory");
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+export function saveMemory(answers) {
+  try {
+    localStorage.setItem("sys_memory", JSON.stringify({
+      nome: answers.nome || "",
+      posto: answers.posto || "",
+    }));
+  } catch {}
+}
