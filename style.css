@@ -74,14 +74,6 @@ body {
   padding: 0;
 }
 
-/* Phase color shifts */
-body.phase-2 { --fg: #33ff66; --fg-dim: #1f8a3a; }
-body.phase-3 { --fg: #ffffff; --fg-dim: #aaaaaa; --cursor: #ffffff; }
-body.phase-3 #prompt::after { content: ""; }
-body.tension #prompt { color: #ffcc33; }
-
-/* Cursor blink (handled by browser, but adjustable) */
-body.fast-cursor #input { caret-color: #aaffaa; }
 
 @media (max-width: 600px) {
   #terminal { padding: 16px 12px; }

@@ -1,21 +1,12 @@
-import { print, blank, printUserEcho, focusInput, sleep } from "./engine/terminal.js";
-import { state, maybeAdvance } from "./engine/state.js";
-import { commands, handleSoft, unknown } from "./commands/index.js";
-import { maybeFireBeat } from "./story/beats.js";
+import { print, printUserEcho, focusInput, sleep } from "./engine/terminal.js";
+import { state } from "./engine/state.js";
+import { commands, unknown } from "./commands/index.js";
+import { intro, handleNarrativeInput } from "./story/narrative.js";
 
-// ---- Welcome ----
-async function welcome() {
-  print("SYS v0.1 — Interfaccia minimale, pazienza limitata.", "dim");
-  await sleep(400);
-  print("Digita 'help' se devi. Qualsiasi altra cosa, se hai coraggio.", "dim");
-  blank();
-}
-
-// ---- Inactivity ----
+// ---- Inactivity (gentle, never pushy) ----
 const inactivityMessages = [
-  { at: 45, text: "Ci sei ancora? Il cursore lampeggia per entrambi.", cls: "dim" },
-  { at: 90, text: "Stai leggendo, o stai solo fissando? Domanda retorica.", cls: "dim" },
-  { at: 180, text: "Molti utenti a questo punto hanno chiuso. Non sto suggerendo.", cls: "dim" },
+  { at: 60,  text: "(nessuna fretta. Aspetto.)" },
+  { at: 180, text: "(ci sei? Basta scrivere qualcosa quando vuoi.)" },
 ];
 let inactivityFired = new Set();
 
@@ -25,17 +16,10 @@ function checkInactivity() {
   for (const m of inactivityMessages) {
     if (elapsed >= m.at && !inactivityFired.has(m.at)) {
       inactivityFired.add(m.at);
-      print(m.text, m.cls);
+      print(m.text, "dim");
     }
   }
-  if (state.phase === 3 && elapsed >= 30 && !state.ended) {
-    state.ended = true;
-    print("");
-    print("Silenzio registrato. Lo interpreto come consenso.", "warn");
-    print("Era la clausola 7b. Te l'avevo detto.", "dim");
-  }
 }
-
 setInterval(checkInactivity, 2000);
 
 // ---- Input handling ----
@@ -45,17 +29,26 @@ async function handleCommand(raw) {
 
   printUserEcho(raw);
   const trimmed = raw.trim();
-  if (!trimmed) return;
 
-  state.history.push(trimmed);
-  state.historyIndex = state.history.length;
-  state.commandsCount++;
-
-  if (await handleSoft(trimmed)) {
-    maybeAdvance();
-    await maybeFireBeat();
-    return;
+  if (trimmed) {
+    state.history.push(trimmed);
+    state.historyIndex = state.history.length;
   }
+
+  // During the narrative (or its lead-in), let the narrative consume input first.
+  if (state.mode === "intro" || state.mode === "waiting_start" || state.mode === "narrative") {
+    const handled = await handleNarrativeInput(trimmed);
+    if (handled) return;
+  }
+
+  // Epilogue: try narrative-specific commands first, then fall through.
+  if (state.mode === "epilogue") {
+    const handled = await handleNarrativeInput(trimmed);
+    if (handled) return;
+  }
+
+  // Free mode (after narrative, or after escape commands).
+  if (!trimmed) return;
 
   const tokens = trimmed.split(/\s+/);
   const cmd = tokens[0].toLowerCase();
@@ -65,14 +58,11 @@ async function handleCommand(raw) {
     try {
       await commands[cmd](args);
     } catch (e) {
-      print(`Errore interno: ${e.message}. Colpa tua, probabilmente.`, "err");
+      print(`(qualcosa non ha funzionato: ${e.message})`, "err");
     }
   } else {
     unknown(trimmed);
   }
-
-  maybeAdvance();
-  await maybeFireBeat();
 }
 
 function setupInput() {
@@ -100,15 +90,12 @@ function setupInput() {
         state.historyIndex++;
         input.value = state.history[state.historyIndex] || "";
       }
-    } else if (e.key === "Tab") {
-      e.preventDefault();
-      print("Autocompletamento disabilitato. SYS preferisce le scelte consapevoli (e le tue sofferenze).", "dim");
     }
   });
 }
 
 (async function boot() {
   setupInput();
-  await welcome();
   focusInput();
+  await intro();
 })();
