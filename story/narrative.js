@@ -161,7 +161,7 @@ const steps = [
   },
 ];
 
-// ---- Story weaving ----
+// ---- Templates ----
 
 async function templateNarrativo(a) {
   print(`Questa è una storia, e dentro c'è ${a.nome || "qualcuno"}.`);
@@ -246,9 +246,106 @@ async function templateRapporto(a) {
   print("(non era un rapporto. Era una storia. A volte funzionano meglio così.)", "dim");
 }
 
-const templates = [templateNarrativo, templateLettera, templateRapporto];
+async function templateFavola(a) {
+  print(`C'era una volta ${a.nome || "qualcuno"}.`);
+  await sleep(1100);
+  print(`Viveva pensando a ${a.posto || "un posto lontano"}, anche mentre faceva altro.`);
+  await sleep(1100);
+  print(`Portava sempre con sé ${a.oggetto || "qualcosa di piccolo"} —`);
+  print("come si fa con le cose importanti, senza sapere bene perché.");
+  await sleep(1300);
+  print(`Ogni tanto pensava a ${a.persona || "qualcuno"}.`);
+  print("Le favole non spiegano questi pensieri. Li mettono dentro e basta.", "dim");
+  await sleep(1300);
+  print(`Una voce aveva detto, una volta: "${a.frase || "niente di importante"}".`);
+  await sleep(800);
+  print(`E ${a.nome || "questa persona"} non l'aveva dimenticato.`);
+  await sleep(1500);
+  blank();
+  print(`Il giorno dopo, la storia voleva ${a.desiderio || "qualcosa di piccolo"}.`);
+  await sleep(1000);
+  print("Le favole non promettono niente.");
+  await sleep(800);
+  print("Ma le cose più piccole, a volte, succedono davvero.", "dim");
+}
 
-async function tellStory() {
+async function templateTu(a) {
+  print(`Sei ${a.nome || "tu"}, anche se forse non te lo ricordi spesso.`);
+  await sleep(1100);
+  print(`Stai pensando a ${a.posto || "un posto"}.`);
+  print("Anche adesso, mentre leggi questo.", "dim");
+  await sleep(1300);
+  print(`Hai ${a.oggetto || "qualcosa"} da qualche parte vicino — non ci fai più caso, ma è lì.`);
+  await sleep(1100);
+  print(`Ogni tanto, senza motivo, pensi a ${a.persona || "qualcuno"}.`);
+  print("Non cercare un motivo. Non ce n'è uno buono.", "dim");
+  await sleep(1300);
+  print(`Quella frase — "${a.frase || "niente di importante"}" — la sai.`);
+  await sleep(1500);
+  blank();
+  print(`Domani vorresti ${a.desiderio || "qualcosa di piccolo"}.`);
+  await sleep(900);
+  print("Forse succede.");
+  await sleep(700);
+  blank();
+  print(`Sei ancora ${a.nome || "tu"}.`, "dim");
+}
+
+async function templateTelegramma(a) {
+  print(`DESTINATARIO: ${(a.nome || "sconosciuto").toUpperCase()} STOP`);
+  await sleep(800);
+  print(`ULTIMA POSIZIONE NOTA: ${(a.posto || "non specificata").toUpperCase()} STOP`);
+  await sleep(800);
+  print(`OGGETTO IN POSSESSO: ${(a.oggetto || "non classificato").toUpperCase()} STOP`);
+  await sleep(800);
+  print(`CONNESSIONE IRRISOLTA: ${(a.persona || "nessuna").toUpperCase()} STOP`);
+  await sleep(800);
+  print(`MESSAGGIO IN MEMORIA: "${a.frase || "niente di importante"}" STOP`);
+  await sleep(1000);
+  print(`RICHIESTA PER DOMANI: ${(a.desiderio || "non specificato").toUpperCase()} STOP`);
+  await sleep(1200);
+  blank();
+  print("NOTA: storia ricevuta. STOP", "dim");
+  await sleep(700);
+  print("NOTA: era bella. STOP", "dim");
+  await sleep(700);
+  print("FINE TRASMISSIONE STOP", "dim");
+}
+
+// ---- Template selection ----
+
+const templateMap = {
+  "1": templateNarrativo, racconto: templateNarrativo,
+  "2": templateLettera,   lettera: templateLettera,
+  "3": templateRapporto,  rapporto: templateRapporto,
+  "4": templateFavola,    favola: templateFavola,
+  "5": templateTu,        tu: templateTu, seconda: templateTu,
+  "6": templateTelegramma, telegramma: templateTelegramma,
+};
+
+const allTemplates = [
+  templateNarrativo, templateLettera, templateRapporto,
+  templateFavola, templateTu, templateTelegramma,
+];
+
+async function askTemplate() {
+  blank();
+  await sleep(900);
+  print("Con questi pezzi posso raccontarla in modi diversi.");
+  await sleep(700);
+  blank();
+  print("  1  racconto     terza persona, tono riflessivo");
+  print("  2  lettera      SYS scrive direttamente a te");
+  print("  3  rapporto     formato tecnico, quasi");
+  print("  4  favola       c'era una volta");
+  print("  5  tu           seconda persona, tempo presente");
+  print("  6  telegramma   ultra-breve, stile STOP");
+  blank();
+  print("(scrivi il numero o il nome — o premi invio per una scelta casuale)", "dim");
+  setMode("choosing_template");
+}
+
+async function tellStory(templateFn) {
   const a = state.answers;
   blank();
   await sleep(1200);
@@ -256,8 +353,7 @@ async function tellStory() {
   blank();
   await sleep(600);
 
-  const template = templates[Math.floor(Math.random() * templates.length)];
-  await template(a);
+  await templateFn(a);
 
   blank();
   await sleep(1500);
@@ -310,11 +406,25 @@ export async function handleNarrativeInput(raw) {
     }
     state.step++;
     if (state.step >= steps.length) {
-      await tellStory();
+      await askTemplate();
     } else {
       await sleep(700);
       await steps[state.step].ask();
     }
+    return true;
+  }
+
+  if (state.mode === "choosing_template") {
+    const key = text.toLowerCase();
+    const templateFn = key === ""
+      ? allTemplates[Math.floor(Math.random() * allTemplates.length)]
+      : templateMap[key];
+
+    if (!templateFn) {
+      print(`"${text}" non corrisponde a nessuno stile. Scrivi un numero da 1 a 6 o il nome.`, "dim");
+      return true;
+    }
+    await tellStory(templateFn);
     return true;
   }
 
@@ -341,7 +451,6 @@ export async function handleNarrativeInput(raw) {
       setMode("free");
       return true;
     }
-    // unknown in epilogue → fall through to free mode commands
     return false;
   }
 

@@ -9,7 +9,7 @@ Progetto statico: HTML + CSS + JS vanilla, nessuna dipendenza.
 ## TODO
 
 ### Narrativa
-- [x] Aggiungere varianti alla storia finale — 3 template: narrativo, lettera, rapporto burocratico
+- [x] Aggiungere varianti alla storia finale — 6 template selezionabili: racconto, lettera, rapporto, favola, tu, telegramma
 - [ ] Rendere le reazioni ai singoli input più sensibili al contenuto (es. riconoscere risposte corte, lunghe, emotivamente cariche)
 - [ ] Aggiungere un "capitolo 2" opzionale: dopo la prima storia, SYS può proporne una più strana
 - [x] SYS con la memoria: alla seconda sessione ricorda nome e posto della volta precedente e li cita
