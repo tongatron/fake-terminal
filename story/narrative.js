@@ -115,14 +115,8 @@ const steps = [
 ];
 
 // ---- Story weaving ----
-async function tellStory() {
-  const a = state.answers;
-  blank();
-  await sleep(1200);
-  print("───────────────────────────────────", "dim");
-  blank();
-  await sleep(600);
 
+async function templateNarrativo(a) {
   print(`Questa è una storia, e dentro c'è ${a.nome || "qualcuno"}.`);
   await sleep(1100);
   print(`Vive immaginando ${a.posto || "altrove"}, anche mentre fa altro.`);
@@ -142,6 +136,82 @@ async function tellStory() {
   print("Probabilmente non succederà esattamente così.");
   await sleep(900);
   print("Ma una versione, magari più storta, magari migliore — quella sì.", "dim");
+}
+
+async function templateLettera(a) {
+  print(`${a.nome || "tu"},`);
+  await sleep(900);
+  blank();
+  print("non so se leggerai questo.");
+  await sleep(800);
+  print(`Però so che ogni tanto pensi a ${a.posto || "un posto"}.`);
+  print("Anche quando non dovresti. Anche quando stai facendo altro.", "dim");
+  await sleep(1300);
+  blank();
+  print(`Hai ${a.oggetto || "qualcosa"} — lo tieni vicino senza farci caso.`);
+  await sleep(900);
+  print(`E ogni tanto, per motivi che non sai spiegare, pensi a ${a.persona || "qualcuno"}.`);
+  await sleep(1300);
+  blank();
+  print(`Quella frase — "${a.frase || "niente di importante"}" —`);
+  await sleep(700);
+  print("la sai a memoria, ormai.");
+  print("Non hai deciso di impararla. È successo.", "dim");
+  await sleep(1500);
+  blank();
+  print(`Domani vorresti ${a.desiderio || "qualcosa di piccolo"}.`);
+  await sleep(900);
+  print("Non chiedermi se succederà.");
+  await sleep(700);
+  print("Ma ci sono storie più strane di questa che sono andate a posto.", "dim");
+  await sleep(1000);
+  blank();
+  print("SYS", "dim");
+}
+
+async function templateRapporto(a) {
+  print(`SOGGETTO:    ${a.nome || "non specificato"}`);
+  await sleep(700);
+  print(`ULTIMA NOTA: desidera essere a ${a.posto || "altrove"}`);
+  await sleep(1100);
+  blank();
+  print(`Oggetto personale identificato: ${a.oggetto || "non classificato"}.`);
+  print("Conservato senza ragione apparente. Probabilmente essenziale.", "dim");
+  await sleep(1300);
+  blank();
+  print(`Connessione emotiva non risolta con: ${a.persona || "persona non identificata"}.`);
+  print("Classificazione: normale. Comune. Umana.", "dim");
+  await sleep(1300);
+  blank();
+  print(`Frase in memoria a lungo termine: "${a.frase || "niente di importante"}".`);
+  print("Origine sconosciuta. Rimozione non consigliata.", "dim");
+  await sleep(1500);
+  blank();
+  print(`Previsione per domani: ${a.nome || "il soggetto"} vorrebbe ${a.desiderio || "qualcosa di piccolo"}.`);
+  await sleep(900);
+  print("Probabilità di riuscita esatta: bassa.");
+  await sleep(700);
+  print("Probabilità di qualcosa di adeguato: più alta di quanto sembri.", "dim");
+  await sleep(1200);
+  blank();
+  print("Fine rapporto.", "dim");
+  await sleep(600);
+  print("(non era un rapporto. Era una storia. A volte funzionano meglio così.)", "dim");
+}
+
+const templates = [templateNarrativo, templateLettera, templateRapporto];
+
+async function tellStory() {
+  const a = state.answers;
+  blank();
+  await sleep(1200);
+  print("───────────────────────────────────", "dim");
+  blank();
+  await sleep(600);
+
+  const template = templates[Math.floor(Math.random() * templates.length)];
+  await template(a);
+
   blank();
   await sleep(1500);
   print("───────────────────────────────────", "dim");
