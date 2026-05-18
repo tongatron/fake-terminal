@@ -24,6 +24,6 @@ export function advancePhase(target) {
 }
 
 export function maybeAdvance() {
-  if (state.phase === 0 && state.commandsCount >= 3) advancePhase(1);
-  else if (state.phase === 1 && state.trust >= 30) advancePhase(2);
+  // Story beats drive phase changes primarily; this is a safety net.
+  if (state.phase === 1 && state.trust >= 30) advancePhase(2);
 }

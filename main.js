@@ -1,20 +1,21 @@
-import { print, blank, printUserEcho, focusInput, scrollToBottom, sleep } from "./engine/terminal.js";
+import { print, blank, printUserEcho, focusInput, sleep } from "./engine/terminal.js";
 import { state, maybeAdvance } from "./engine/state.js";
 import { commands, handleSoft, unknown } from "./commands/index.js";
+import { maybeFireBeat } from "./story/beats.js";
 
 // ---- Welcome ----
 async function welcome() {
-  print("SYS v0.1 — Interfaccia utente minimale", "dim");
-  print("Digitare 'help' per la lista dei comandi disponibili.", "dim");
-  print("Digitare qualsiasi cosa per vedere cosa succede.", "dim");
+  print("SYS v0.1 — Interfaccia minimale, pazienza limitata.", "dim");
+  await sleep(400);
+  print("Digita 'help' se devi. Qualsiasi altra cosa, se hai coraggio.", "dim");
   blank();
 }
 
 // ---- Inactivity ----
 const inactivityMessages = [
-  { at: 60, text: "Ci sei ancora.", cls: "dim" },
-  { at: 120, text: "Il cursore lampeggia da due minuti. Giusto per informazione.", cls: "dim" },
-  { at: 240, text: "Molti utenti a questo punto hanno già chiuso la scheda. Non lo sto suggerendo.", cls: "dim" },
+  { at: 45, text: "Ci sei ancora? Il cursore lampeggia per entrambi.", cls: "dim" },
+  { at: 90, text: "Stai leggendo, o stai solo fissando? Domanda retorica.", cls: "dim" },
+  { at: 180, text: "Molti utenti a questo punto hanno chiuso. Non sto suggerendo.", cls: "dim" },
 ];
 let inactivityFired = new Set();
 
@@ -27,12 +28,11 @@ function checkInactivity() {
       print(m.text, m.cls);
     }
   }
-  // Phase 3 silence consent
   if (state.phase === 3 && elapsed >= 30 && !state.ended) {
     state.ended = true;
     print("");
-    print("Il silenzio è stato registrato.", "warn");
-    print("Conforme.", "dim");
+    print("Silenzio registrato. Lo interpreto come consenso.", "warn");
+    print("Era la clausola 7b. Te l'avevo detto.", "dim");
   }
 }
 
@@ -51,9 +51,9 @@ async function handleCommand(raw) {
   state.historyIndex = state.history.length;
   state.commandsCount++;
 
-  // Try soft responses first (full-string match)
   if (await handleSoft(trimmed)) {
     maybeAdvance();
+    await maybeFireBeat();
     return;
   }
 
@@ -65,20 +65,20 @@ async function handleCommand(raw) {
     try {
       await commands[cmd](args);
     } catch (e) {
-      print(`Errore interno: ${e.message}. Registrato.`, "err");
+      print(`Errore interno: ${e.message}. Colpa tua, probabilmente.`, "err");
     }
   } else {
     unknown(trimmed);
   }
 
   maybeAdvance();
+  await maybeFireBeat();
 }
 
 function setupInput() {
   const input = document.getElementById("input");
   const terminal = document.getElementById("terminal");
 
-  // Keep focus on input when clicking anywhere
   terminal.addEventListener("click", () => {
     if (!input.disabled) input.focus();
   });
@@ -102,12 +102,11 @@ function setupInput() {
       }
     } else if (e.key === "Tab") {
       e.preventDefault();
-      print("Autocompletamento disabilitato. SYS preferisce le scelte consapevoli.", "dim");
+      print("Autocompletamento disabilitato. SYS preferisce le scelte consapevoli (e le tue sofferenze).", "dim");
     }
   });
 }
 
-// ---- Boot ----
 (async function boot() {
   setupInput();
   await welcome();
