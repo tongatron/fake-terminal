@@ -12,6 +12,8 @@ Progetto statico: HTML + CSS + JS vanilla, nessuna dipendenza.
 - [x] Aggiungere varianti alla storia finale — 3 template: narrativo, lettera, rapporto burocratico
 - [ ] Rendere le reazioni ai singoli input più sensibili al contenuto (es. riconoscere risposte corte, lunghe, emotivamente cariche)
 - [ ] Aggiungere un "capitolo 2" opzionale: dopo la prima storia, SYS può proporne una più strana
+- [ ] SYS con la memoria: alla seconda sessione ricorda nome e posto della volta precedente e li cita
+- [ ] Domande adattive: se la risposta al posto è molto corta, SYS chiede "vicino o lontano?" prima di andare avanti
 
 ### UX
 - [ ] Gestire meglio l'inattività: 4 livelli (15s niente / 30s cursore più veloce / 60s messaggio / 120s messaggio più lungo)
@@ -23,14 +25,21 @@ Progetto statico: HTML + CSS + JS vanilla, nessuna dipendenza.
 - [ ] Cursore: velocità variabile in base alla fase narrativa (lento → normale → veloce → irregolare)
 - [ ] Glitch: un singolo frame di testo distorto su certi trigger (es. risposta inaspettata)
 - [ ] Cambio colore testo nella parte finale della storia (da verde a bianco)
+- [ ] Suoni opzionali: tasto `s` toggle typewriter sound — sottile, disattivato di default
+
+### Condivisione
+- [ ] `salva` → copia la storia negli appunti via `navigator.clipboard`
+- [ ] Aggiungere `og:` meta tags (titolo + descrizione) per la condivisione social
+- [ ] Generare un URL con la storia encoded (base64) così ogni storia è linkabile
 
 ### Tecnico
-- [ ] Salvare la storia in `localStorage` per ritrovarla al reload
-- [ ] Aggiungere `og:` meta tags per la condivisione social
-- [ ] Rimuovere il doppio `</div>` spurio in `style.css` (riga vuota extra dopo `#input`)
+- [ ] Salvare la storia in `localStorage` — SYS ricorda le sessioni precedenti
+- [ ] Rimuovere la riga vuota extra in `style.css` dopo `#input`
 
 ### Easter egg / comandi nascosti
-- [ ] `man sys` → stampa un manuale finto
-- [ ] `reboot` → chiede conferma drammatica
-- [ ] `42` → risposta specifica
+- [ ] `man sys` → stampa un manuale finto con sezione BUGS: "L'utente."
+- [ ] `reboot` → "Sei sicuro di voler ricominciare? Perderesti tutto. Anche le cose che non sai di avere."
+- [ ] `42` → "Già saputo. Prossima domanda."
 - [ ] Input vuoto ripetuto 3+ volte → SYS nota il pattern
+- [ ] `sudo` → "Questo sistema non usa sudo. I privilegi si guadagnano."
+- [ ] Digitare il proprio nome come comando → risposta personalizzata
