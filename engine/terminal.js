@@ -70,6 +70,11 @@ export async function typeLine(text, cls = "sys", delay = 0) {
   print(text, cls);
 }
 
+export function getOutputText() {
+  const lines = outputEl().querySelectorAll(".line");
+  return Array.from(lines).map(l => l.textContent).join("\n");
+}
+
 export async function dotsPause(count = 3, intervalMs = 500) {
   const line = document.createElement("span");
   line.className = "line dim";

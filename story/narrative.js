@@ -100,7 +100,24 @@ const steps = [
     },
     react: async (a) => {
       await sleep(500);
-      print(`${a}. Bene. Mi torna utile dopo.`);
+      const piccoli = ["chiav", "telefon", "penna", "moneta", "foto", "anello", "accendin", "bigliett", "fazzoletto", "portafog"];
+      const isPiccolo = piccoli.some(w => a.toLowerCase().includes(w));
+      if (a.length <= 4) {
+        print(`${a}.`);
+        await sleep(600);
+        print("Le cose piccole pesano di più. Di solito.", "dim");
+      } else if (isPiccolo) {
+        print(`${a}.`);
+        await sleep(600);
+        print("Le cose che teniamo vicino non sono mai casuali.", "dim");
+      } else {
+        const choices = [
+          `${a}. Bene. Mi torna utile dopo.`,
+          `${a}. Lo metto nella storia — vedremo dove sta meglio.`,
+          `${a}. Interessante. Non te lo chiedo due volte.`,
+        ];
+        print(pick(choices));
+      }
     },
   },
   {
@@ -140,9 +157,25 @@ const steps = [
     },
     react: async (a) => {
       await sleep(500);
-      print(`"${a}". Bene.`);
-      await sleep(500);
-      print("Le frasi rimangono per motivi che capiamo dopo.", "dim");
+      if (a.length <= 8) {
+        print(`"${a}".`);
+        await sleep(600);
+        print("Breve. Le più brevi restano più a lungo.", "dim");
+      } else if (a.endsWith("?")) {
+        print(`"${a}"`);
+        await sleep(700);
+        print("Una domanda. Non ti ha risposto nessuno, o la risposta non bastava.", "dim");
+      } else if (a.includes("!")) {
+        print(`"${a}"`);
+        await sleep(600);
+        print("Forte. Chi l'ha detto, o chi l'hai detto tu?", "dim");
+        await sleep(900);
+        print("Non rispondere — me lo segno così.", "dim");
+      } else {
+        print(`"${a}". Bene.`);
+        await sleep(500);
+        print("Le frasi rimangono per motivi che capiamo dopo.", "dim");
+      }
     },
   },
   {
@@ -154,9 +187,27 @@ const steps = [
     },
     react: async (a) => {
       await sleep(500);
-      print(`Ok. ${a}.`);
-      await sleep(700);
-      print("Mettiamo insieme i pezzi.");
+      const grandi = ["tutto", "niente", "soldi", "amore", "guarire", "tornare", "morire", "cambiare", "vincere", "pace", "libertà"];
+      const isGrande = grandi.some(w => a.toLowerCase().includes(w));
+      const uncertain = ["boh", "non lo so", "non so", "niente", "nulla"];
+      const isUncertain = uncertain.some(w => a.toLowerCase().includes(w));
+      if (isUncertain) {
+        print(`${a}.`);
+        await sleep(700);
+        print("Capito. Non chiedere niente a domani è già una posizione.", "dim");
+        await sleep(600);
+        print("Mettiamo insieme i pezzi lo stesso.");
+      } else if (isGrande) {
+        print(`Ok. ${a}.`);
+        await sleep(700);
+        print("Non è piccolo, come desiderio.", "dim");
+        await sleep(500);
+        print("Va bene lo stesso. Mettiamo insieme i pezzi.");
+      } else {
+        print(`Ok. ${a}.`);
+        await sleep(700);
+        print("Mettiamo insieme i pezzi.");
+      }
     },
   },
 ];

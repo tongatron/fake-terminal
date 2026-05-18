@@ -5,8 +5,10 @@ import { intro, handleNarrativeInput } from "./story/narrative.js";
 
 // ---- Inactivity (gentle, never pushy) ----
 const inactivityMessages = [
-  { at: 60,  text: "(nessuna fretta. Aspetto.)" },
-  { at: 180, text: "(ci sei? Basta scrivere qualcosa quando vuoi.)" },
+  { at: 20,  text: "(nessuna fretta.)" },
+  { at: 45,  text: "(aspetto. Scrivi quando sei pronto.)" },
+  { at: 90,  text: "(ci sei? Va bene anche il silenzio — ma se vuoi dire qualcosa, sono qui.)" },
+  { at: 180, text: "(tre minuti. Questo terminale non si chiude da solo. Quando vuoi.)", },
 ];
 let inactivityFired = new Set();
 
@@ -27,8 +29,37 @@ async function handleCommand(raw) {
   state.lastInputAt = Date.now();
   inactivityFired.clear();
 
+  // Conferma reboot in sospeso
+  if (state.rebootPending) {
+    state.rebootPending = false;
+    printUserEcho(raw);
+    const t = raw.trim().toLowerCase();
+    if (t === "sì" || t === "si" || t === "s") {
+      print("Riavvio.", "dim");
+      await sleep(1000);
+      location.reload();
+    } else {
+      print("Ok. Ci ripensa.", "dim");
+    }
+    return;
+  }
+
   printUserEcho(raw);
   const trimmed = raw.trim();
+
+  // Traccia invii vuoti consecutivi
+  if (!trimmed) {
+    state.emptyInputCount++;
+    if (state.emptyInputCount === 3) {
+      await sleep(400);
+      print("(tre invii vuoti. Stai cercando qualcosa che non si scrive.)", "dim");
+    } else if (state.emptyInputCount === 6) {
+      await sleep(400);
+      print("(ok. Resto qui.)", "dim");
+    }
+  } else {
+    state.emptyInputCount = 0;
+  }
 
   if (trimmed) {
     state.history.push(trimmed);

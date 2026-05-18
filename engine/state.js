@@ -6,6 +6,8 @@ export const state = {
   historyIndex: -1,
   lastInputAt: Date.now(),
   ended: false,
+  emptyInputCount: 0,       // invii vuoti consecutivi
+  rebootPending: false,     // in attesa di conferma reboot
 };
 
 export function setMode(m) {
