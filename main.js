@@ -74,7 +74,10 @@ function setupInput() {
   });
 
   input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
+    if (e.key === "Tab") {
+      e.preventDefault();
+      print("(qui non c'è autocompletamento — scrivi pure a mano)", "dim");
+    } else if (e.key === "Enter") {
       const value = input.value;
       input.value = "";
       handleCommand(value);

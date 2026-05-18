@@ -74,6 +74,12 @@ body {
   padding: 0;
 }
 
+#input::placeholder {
+  color: var(--fg-dim);
+  opacity: 0.6;
+  font-style: italic;
+}
+
 
 @media (max-width: 600px) {
   #terminal { padding: 16px 12px; }

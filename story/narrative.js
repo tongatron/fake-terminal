@@ -15,7 +15,7 @@ export async function intro() {
   print("Tu mi dai qualche pezzo. Io ci metto il resto.", "dim");
   blank();
   await sleep(600);
-  print("Quando sei pronto, basta che premi invio. Senza scrivere niente.", "dim");
+  print("Quando sei pronto, scrivi qualcosa qui sotto e premi invio — o premi invio e basta.", "dim");
   setMode("waiting_start");
 }
 
@@ -149,9 +149,9 @@ async function tellStory() {
   await sleep(900);
   print(`Fine. Almeno per stasera, ${a.nome || "guest"}.`);
   await sleep(800);
-  print("Se vuoi, puoi scrivere 'ancora' per ricominciare con altri pezzi,");
-  print("'salva' per tenertela, o 'chiudi' per uscire.");
-  print("Oppure 'help' — i comandi noiosi sono ancora qui.", "dim");
+  print("Scrivi 'ancora' per ricominciare con altri pezzi.");
+  print("Scrivi 'chiudi' per finire qui.");
+  print("(o scrivi 'help' se vuoi esplorare altro)", "dim");
   setMode("epilogue");
 }
 
